@@ -1,18 +1,32 @@
 #pragma once
 #include "stdafx.h"
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
+#define BUFFER_SIZE 1024
 //TCP 서버 클래스 생성
 class CCommunication
 {
 private:
-	//TODO :: TCP 서버 소켓 과 서버 주소 관리
-	
-	//TODO :: 메시지 송신 구현
-	//TODO :: 메시지 수신 구현
+	int serverSocket, clientSocket;
+	struct sockaddr_in serverAddress, clientAddress;
+	std::tstring messageBuffers;
+
+	CCommunication();
+	~CCommunication();
 
 public:
-	//TODO :: 초기화 구현
-	//TODO :: 통신 시작
-	//TODO :: 통신 종료
+	static CCommunication* GetInstance(void);
+	
+	void Init(std::tstring port);
+	void Start();
+	void Send();
+	void Recv();
+	void Match(int protocol, std::tstring);
+	void End();
 };
 
+inline CCommunication* CommunicationManager()
+{
+	return CCommunication::GetInstance();
+}

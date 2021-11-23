@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#pragma once
+#include <cppcore.h>
 
 enum PROTOCOL {
     AGENT_INIT,
@@ -23,8 +24,8 @@ struct ST_PACKET_INFO : public core::IFormatterObject
     void OnSync(core::IFormatter& formatter)
     {
         formatter
-            + core::sPair(TEXT("Protocol"), protocol)
-            + core::sPair(TEXT("Data"), data)
+            + core::sPair(TEXT("protocol"), protocol)
+            + core::sPair(TEXT("data"), data)
             ;
     }
 };
