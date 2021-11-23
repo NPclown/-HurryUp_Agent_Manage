@@ -1,7 +1,6 @@
-﻿#include <cstdio>
+#include "stdafx.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-    printf("%s에 오신 것을 환영합니다!\n", "HurryUp_Agent_Manager");
-    return 0;
+
 }
