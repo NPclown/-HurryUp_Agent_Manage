@@ -20,9 +20,9 @@ public:
 	
 	void Init(std::tstring port);
 	void Start();
-	void Send();
+	void Send(int protocol, std::tstring data);
 	void Recv();
-	void Match(int protocol, std::tstring);
+	void Match(int protocol, std::tstring data);
 	void End();
 };
 

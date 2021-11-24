@@ -128,11 +128,13 @@
   <ItemGroup>
     <ClCompile Include="CCommunication.cpp" />
     <ClCompile Include="CService.cpp" />
+    <ClCompile Include="CUtils.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCommunication.h" />
     <ClInclude Include="CService.h" />
+    <ClInclude Include="CUtils.h" />
     <ClInclude Include="protocol.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

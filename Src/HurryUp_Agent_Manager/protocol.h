@@ -2,11 +2,12 @@
 #include <cppcore.h>
 
 enum PROTOCOL {
-    AGENT_INIT,
+    AGENT_INIT = 100,
     AGENT_START,
     AGENT_STOP,
     AGENT_UPDATE,
-    AGENT_DELETE
+    AGENT_DELETE,
+    ERROR = 500
 };
 
 // 메시지 전송에 필요한 메인 구조

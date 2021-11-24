@@ -1,4 +1,5 @@
 #include "CCommunication.h"
+#include "CService.h"
 
 CCommunication::CCommunication()
 {
@@ -8,8 +9,22 @@ CCommunication::~CCommunication()
 {
 }
 
-void CCommunication::Send()
+void CCommunication::Send(int protocol, std::tstring data)
 {
+	ST_PACKET_INFO stPacketInfo(protocol, data);
+	std::tstring jsPacketInfo;
+	core::WriteJsonToString(&stPacketInfo, jsPacketInfo);
+
+	std::tstring message = TEXT("BOBSTART") + jsPacketInfo + TEXT("BOBEND");
+	int result = write(clientSocket, message.c_str(), message.length());
+
+	if (result == -1)
+		core::Log_Warn(TEXT("CCommunication.cpp - [%s] : %d"), TEXT("Send Error Code"), errno);
+	else
+	{
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s] : %d"), TEXT("Send Complete"), result);
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s] : %s"), TEXT("Send Message"), TEXT(message.c_str()));
+	}
 }
 
 void CCommunication::Recv()
@@ -75,32 +90,48 @@ void CCommunication::Recv()
 	}
 }
 
-void CCommunication::Match(int protocol, std::tstring)
+void CCommunication::Match(int protocol, std::tstring data)
 {
 	switch (protocol)
 	{
 	case AGENT_INIT:
-		//TODO :: 환경변수 파일 생성 구현 필요
-		std::cout << "AGENT_INIT" << std::endl;
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_INIT"));
+		if (ServiceManager()->AgentInit(data) == 0)
+			Send(AGENT_INIT, "Success");
+		else 
+			Send(AGENT_INIT, "Fail");
 		break;
 	case AGENT_START:
-		//TODO :: 에이전트 실행
-		std::cout << "AGENT_START" << std::endl;
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_START"));
+		if (ServiceManager()->AgentStart() == 0)
+			Send(AGENT_START, "Success");
+		else
+			Send(AGENT_START, "Fail");
 		break;
 	case AGENT_STOP:
-		//TODO :: 에이전트 중지
-		std::cout << "AGENT_STOP" << std::endl;
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_STOP"));
+		if (ServiceManager()->AgentStop() == 0)
+			Send(AGENT_STOP, "Success");
+		else
+			Send(AGENT_STOP, "Fail");
 		break;
 	case AGENT_UPDATE:
-		//TODO :: 에이전트 업데이트
-		std::cout << "AGENT_UPDATE" << std::endl;
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_UPDATE"));
+		if (ServiceManager()->AgentUpdate() == 0)
+			Send(AGENT_UPDATE, "Success");
+		else
+			Send(AGENT_UPDATE, "Fail");
 		break;
 	case AGENT_DELETE:
-		//TODO :: 에이전트 삭제
-		std::cout << "AGENT_DELETE" << std::endl;
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_DELETE"));
+		if (ServiceManager()->AgentDelete() == 0)
+			Send(AGENT_DELETE, "Success");
+		else
+			Send(AGENT_DELETE, "Fail");
 		break;
 	default:
-		std::cout << "WRONG" << std::endl;
+		Send(ERROR, "Protocol Is Invalid");
+		core::Log_Warn(TEXT("CCommunication.cpp - [%s]"), TEXT("Protocol Is Invalid"));
 	}
 }
 

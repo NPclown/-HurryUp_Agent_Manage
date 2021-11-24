@@ -1,23 +1,6 @@
 #include "stdafx.h"
 #include "CCommunication.h"
-
-void SetLogger(std::tstring _name, DWORD _inputOption)
-{
-	std::tstring strModuleFile = core::GetFileName();
-	std::tstring strModuleDir = core::ExtractDirectory(strModuleFile);
-	std::tstring strModuleName = core::ExtractFileNameWithoutExt(strModuleFile);
-	std::tstring strLogFile = strModuleDir + TEXT("/") + strModuleName + TEXT(".log");
-
-	core::ST_LOG_INIT_PARAM_EX init;
-	init.strLogFile = strLogFile;
-	init.strID = TEXT(_name);
-	init.dwInputFlag = _inputOption;
-	init.dwOutputFlag = core::LOG_OUTPUT_FILE | core::LOG_OUTPUT_CONSOLE | core::LOG_OUTPUT_DBGWND;
-	init.dwMaxFileSize = 10 * 1000 * 1000;
-	init.dwMaxFileCount = 10;
-	init.nLogRotation = core::LOG_ROTATION_SIZE;
-	core::InitLog(init);
-}
+#include "CService.h"
 
 int main(int argc, char* argv[])
 {
@@ -32,6 +15,7 @@ int main(int argc, char* argv[])
 	CommunicationManager()->Init("9090");
 
 	CommunicationManager()->Start();
+	ServiceManager()->Init("HurryUp_Agent.out");
 
 	CommunicationManager()->Recv();
 }
