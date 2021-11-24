@@ -1,5 +1,6 @@
 #include "CService.h"
 
+#define AGNET_DIRPATH TEXT("/var/log/hurryup/agent")
 #define ENV_PATH TEXT("/var/log/hurryup/agent/env.json")
 //TODO :: 경로에 대한 유효성 검증이 필요
 #define ERROR_CHECK TEXT("echo $?")
@@ -28,6 +29,8 @@ void CService::Init(std::tstring _serviceName)
 int CService::AgentInit(std::tstring data)
 {
 	core::Log_Debug(TEXT("CService.cpp - [%s]"), TEXT("AgentInit"));
+
+	CheckDirectory(AGNET_DIRPATH);
 
 	if (data == "") {
 		core::Log_Warn(TEXT("CService.cpp - [%s]"), TEXT("Data Error"));
@@ -65,9 +68,12 @@ int CService::AgentStart()
 		return -1;
 	}
 
-	std::tstring result = exec(this->serviceName.c_str());
+	std::tstring startCommand = "nohup " + this->serviceName + " 1> /dev/null 2>&1 &";
+	core::Log_Debug(TEXT("CService.cpp - [%s] : %s"), TEXT("Start Command"), startCommand.c_str());
 
-	if (exec(ERROR_CHECK) != "0") {
+	std::tstring result = exec(startCommand.c_str());
+
+	if (Split(exec(ERROR_CHECK), "\n")[0] != std::tstring("0")) {
 		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error"), TEXT(result.c_str()));
 		return -1;
 	}
@@ -80,7 +86,7 @@ int CService::AgentStop()
 {
 	core::Log_Debug(TEXT("CService.cpp - [%s]"), TEXT("AgentStop"));
 
-	std::tstring pidCommand = "ps -eaf | grep " + this->serviceName + " | grep - v grep | awk '{print $2}'";
+	std::tstring pidCommand = "ps -eaf | grep " + this->serviceName + " | grep -v grep | grep -v HurryUp_Agent_Manager | awk '{print $2}'";
 	core::Log_Debug(TEXT("CService.cpp - [%s] : %s"), TEXT("Pid Command"), pidCommand.c_str());
 
 	std::tstring result = exec(pidCommand.c_str());
@@ -88,7 +94,7 @@ int CService::AgentStop()
 	if (result == "")
 		return 0;
 
-	if (exec(ERROR_CHECK) != "0") {
+	if (Split(exec(ERROR_CHECK), "\n")[0] != std::tstring("0")) {
 		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error"), TEXT(result.c_str()));
 		return -1;
 	}
@@ -102,7 +108,7 @@ int CService::AgentStop()
 
 	result = exec(killCommand.c_str());
 
-	if (exec(ERROR_CHECK) != "0") {
+	if (Split(exec(ERROR_CHECK), "\n")[0] != std::tstring("0")) {
 		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error"), TEXT(result.c_str()));
 		return -1;
 	}
@@ -136,5 +142,28 @@ int CService::AgentDelete()
 
 	//TODO :: 에이전트 삭제 구현 필요
 	core::Log_Debug(TEXT("CService.cpp - [%s]"), TEXT("AgentDelete End"));
+	return 0;
+}
+
+int CService::AgentStatus()
+{
+	core::Log_Debug(TEXT("CService.cpp - [%s]"), TEXT("AgentStatus"));
+
+	std::tstring pidCommand = "ps -ax -o command | grep " + this->serviceName + " | grep -v grep | grep -v HurryUp_Agent_Manager | wc -l";
+	core::Log_Debug(TEXT("CService.cpp - [%s] : %s"), TEXT("Pid Command"), pidCommand.c_str());
+
+	std::tstring result = exec(pidCommand.c_str());
+
+	std::cout << result << std::endl;
+
+	if (Split(result, "\n")[0] == std::tstring("0"))
+		return -1;
+
+	if (Split(exec(ERROR_CHECK), "\n")[0] != std::tstring("0")) {
+		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error"), TEXT(result.c_str()));
+		return -1;
+	}
+
+	core::Log_Debug(TEXT("CService.cpp - [%s]"), TEXT("AgentStatus End"));
 	return 0;
 }
