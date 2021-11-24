@@ -1,6 +1,7 @@
 #include "CService.h"
 
-#define ENV_PATH TEXT("/usr/local/bin/env.json")
+#define ENV_PATH TEXT("/var/log/hurryup/agent/env.json")
+//TODO :: 경로에 대한 유효성 검증이 필요
 #define ERROR_CHECK TEXT("echo $?")
 #define KILL TEXT("kill -9 ")
 
