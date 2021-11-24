@@ -1,11 +1,13 @@
-#include "stdafx.h"
+#pragma once
+#include <cppcore.h>
 
 enum PROTOCOL {
-    AGENT_INIT,
+    AGENT_INIT = 100,
     AGENT_START,
     AGENT_STOP,
     AGENT_UPDATE,
-    AGENT_DELETE
+    AGENT_DELETE,
+    ERROR = 500
 };
 
 // 메시지 전송에 필요한 메인 구조
@@ -23,8 +25,8 @@ struct ST_PACKET_INFO : public core::IFormatterObject
     void OnSync(core::IFormatter& formatter)
     {
         formatter
-            + core::sPair(TEXT("Protocol"), protocol)
-            + core::sPair(TEXT("Data"), data)
+            + core::sPair(TEXT("protocol"), protocol)
+            + core::sPair(TEXT("data"), data)
             ;
     }
 };

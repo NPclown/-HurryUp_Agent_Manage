@@ -1,13 +1,25 @@
 #pragma once
+#include "stdafx.h"
+
 class CService
 {
 	private:
-		// TODO :: 환경변수 파일 생성
-		// TODO :: 에이전트 실행
-		// TODO :: 에이전트 중지
-		// TODO :: 에이전트 업데이트
-		// TODO :: 에이전트 삭제
+		std::tstring serviceName;
+
+		CService();
+		~CService();
 	public:
-		// TODO :: 싱글톤 클래스로 구현
+		static CService* GetInstance(void);
+		
+		void Init(std::tstring _serviceName);
+		int AgentInit(std::tstring data);
+		int AgentStart();
+		int AgentStop();
+		int AgentUpdate();
+		int AgentDelete();
 };
 
+inline CService* ServiceManager()
+{
+	return CService::GetInstance();
+}
