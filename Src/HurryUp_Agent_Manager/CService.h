@@ -17,6 +17,7 @@ class CService
 		int AgentStop();
 		int AgentUpdate();
 		int AgentDelete();
+		int AgentStatus();
 };
 
 inline CService* ServiceManager()

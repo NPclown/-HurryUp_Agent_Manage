@@ -2,15 +2,19 @@
 #include <regex>
 #include <fstream>
 
-#define DIRPATH TEXT("/var/log/hurryup/manager/")
+#define DIRPATH TEXT("/var/log/hurryup/")
+#define MANAGER_DIRPATH TEXT("/var/log/hurryup/manager/")
 //TODO :: 경로에 대한 유효성 검증이 필요
 
 void SetLogger(std::tstring _name, DWORD _inputOption)
 {
+	CheckDirectory(DIRPATH);
+	CheckDirectory(MANAGER_DIRPATH);
+
 	std::tstring strModuleFile = core::GetFileName();
 	std::tstring strModuleDir = core::ExtractDirectory(strModuleFile);
 	std::tstring strModuleName = core::ExtractFileNameWithoutExt(strModuleFile);
-	std::tstring strLogFile = DIRPATH + strModuleName + TEXT(".log");
+	std::tstring strLogFile = MANAGER_DIRPATH + strModuleName + TEXT(".log");
 
 	core::ST_LOG_INIT_PARAM_EX init;
 	init.strLogFile = strLogFile;
@@ -57,4 +61,10 @@ std::vector<std::tstring> Split(std::tstring input, std::tstring delimiter)
 	}
 
 	return result;
+}
+
+void CheckDirectory(std::tstring _path)
+{
+	if (core::PathFileExistsA(_path.c_str()) == 0)
+		core::CreateDirectory(_path.c_str());
 }

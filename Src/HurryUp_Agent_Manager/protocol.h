@@ -7,6 +7,7 @@ enum PROTOCOL {
     AGENT_STOP,
     AGENT_UPDATE,
     AGENT_DELETE,
+    AGENT_STATUS,
     ERROR = 500
 };
 

@@ -129,6 +129,13 @@ void CCommunication::Match(int protocol, std::tstring data)
 		else
 			Send(AGENT_DELETE, "Fail");
 		break;
+	case AGENT_STATUS:
+		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_DELETE"));
+		if (ServiceManager()->AgentStatus() == 0)
+			Send(AGENT_STATUS, "Success");
+		else
+			Send(AGENT_STATUS, "Fail");
+		break;
 	default:
 		Send(ERROR, "Protocol Is Invalid");
 		core::Log_Warn(TEXT("CCommunication.cpp - [%s]"), TEXT("Protocol Is Invalid"));
