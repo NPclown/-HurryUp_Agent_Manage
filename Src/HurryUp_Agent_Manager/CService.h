@@ -15,7 +15,7 @@ class CService
 		int AgentInit(std::tstring data);
 		int AgentStart();
 		int AgentStop();
-		int AgentUpdate();
+		int AgentUpdate(std::tstring data);
 		int AgentDelete();
 		int AgentStatus();
 };

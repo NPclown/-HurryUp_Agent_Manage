@@ -75,7 +75,7 @@ void CCommunication::Recv()
 					size_t end_location = messageBuffers.find("BOBEND");
 					core::Log_Debug(TEXT("CCommunication.cpp - [%s] : %d, %d"), TEXT("Find Position(Start, End)"), start_location, end_location);
 
-					if (start_location == -1 || end_location == -1)
+					if (start_location == size_t(-1) || end_location == size_t(-1))
 						break;
 
 					ST_PACKET_INFO stPacketInfo;
@@ -117,17 +117,10 @@ void CCommunication::Match(int protocol, std::tstring data)
 		break;
 	case AGENT_UPDATE:
 		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_UPDATE"));
-		if (ServiceManager()->AgentUpdate() == 0)
+		if (ServiceManager()->AgentUpdate(data) == 0)
 			Send(AGENT_UPDATE, "Success");
 		else
 			Send(AGENT_UPDATE, "Fail");
-		break;
-	case AGENT_DELETE:
-		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_DELETE"));
-		if (ServiceManager()->AgentDelete() == 0)
-			Send(AGENT_DELETE, "Success");
-		else
-			Send(AGENT_DELETE, "Fail");
 		break;
 	case AGENT_STATUS:
 		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_DELETE"));
@@ -153,7 +146,7 @@ void CCommunication::Init(std::tstring port)
 	memset(&serverAddress, 0, sizeof(serverAddress));
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
-	serverAddress.sin_port = htons(atoi(port.c_str()));
+	serverAddress.sin_port = htons(uint16_t(atoi(port.c_str())));
 }
 
 void CCommunication::Start()
