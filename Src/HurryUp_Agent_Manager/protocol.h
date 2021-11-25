@@ -6,7 +6,6 @@ enum PROTOCOL {
     AGENT_START,
     AGENT_STOP,
     AGENT_UPDATE,
-    AGENT_DELETE,
     AGENT_STATUS,
     ERROR = 500
 };
@@ -57,12 +56,13 @@ struct ST_ENV_INFO : public core::IFormatterObject
     std::tstring serverIp;
     std::tstring serverPort;
     std::tstring serialNumber;
+    std::tstring environment;
     std::vector<ST_MODULE_INFO> modules;
 
     ST_ENV_INFO(void)
     {}
-    ST_ENV_INFO(std::tstring _serverIp, std::tstring _serverPort, std::tstring _serialNumber, std::vector<ST_MODULE_INFO> _modules)
-        : serverIp(_serverIp), serverPort(_serverPort), serialNumber(_serialNumber), modules(_modules)
+    ST_ENV_INFO(std::tstring _serverIp, std::tstring _serverPort, std::tstring _serialNumber, std::tstring _environment, std::vector<ST_MODULE_INFO> _modules)
+        : serverIp(_serverIp), serverPort(_serverPort), serialNumber(_serialNumber), environment(_environment), modules(_modules)
     {}
 
     void OnSync(core::IFormatter& formatter)
@@ -71,6 +71,7 @@ struct ST_ENV_INFO : public core::IFormatterObject
             + core::sPair(TEXT("server_ip"), serverIp)
             + core::sPair(TEXT("server_port"), serverPort)
             + core::sPair(TEXT("serial_number"), serialNumber)
+            + core::sPair(TEXT("environment"), environment)
             + core::sPair(TEXT("modules"), modules)
             ;
     }
