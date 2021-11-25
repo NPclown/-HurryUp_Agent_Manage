@@ -96,38 +96,23 @@ void CCommunication::Match(int protocol, std::tstring data)
 	{
 	case AGENT_INIT:
 		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_INIT"));
-		if (ServiceManager()->AgentInit(data) == 0)
-			Send(AGENT_INIT, "Success");
-		else 
-			Send(AGENT_INIT, "Fail");
+		Send(AGENT_INIT, ServiceManager()->AgentEnvironment(data));
 		break;
 	case AGENT_START:
 		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_START"));
-		if (ServiceManager()->AgentStart() == 0)
-			Send(AGENT_START, "Success");
-		else
-			Send(AGENT_START, "Fail");
+		Send(AGENT_START, ServiceManager()->AgentExecute());
 		break;
 	case AGENT_STOP:
 		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_STOP"));
-		if (ServiceManager()->AgentStop() == 0)
-			Send(AGENT_STOP, "Success");
-		else
-			Send(AGENT_STOP, "Fail");
+		Send(AGENT_STOP, ServiceManager()->AgentTerminate());
 		break;
 	case AGENT_UPDATE:
 		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_UPDATE"));
-		if (ServiceManager()->AgentUpdate(data) == 0)
-			Send(AGENT_UPDATE, "Success");
-		else
-			Send(AGENT_UPDATE, "Fail");
+		Send(AGENT_UPDATE, ServiceManager()->AgentUpdate(data));
 		break;
 	case AGENT_STATUS:
 		core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("AGENT_DELETE"));
-		if (ServiceManager()->AgentStatus() == 0)
-			Send(AGENT_STATUS, "Success");
-		else
-			Send(AGENT_STATUS, "Fail");
+		Send(AGENT_STATUS, ServiceManager()->AgentStatus());
 		break;
 	default:
 		Send(ERROR, "Protocol Is Invalid");
@@ -151,7 +136,7 @@ void CCommunication::Init(std::tstring port)
 
 void CCommunication::Start()
 {
-	core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("Working Start"));
+	core::Log_Info(TEXT("CCommunication.cpp - [%s]"), TEXT("CCommunication Setting Start"));
 	int requestCount = 5;
 	serverSocket = socket(PF_INET, SOCK_STREAM, 0);
 
@@ -170,7 +155,7 @@ void CCommunication::Start()
 		core::Log_Warn(TEXT("CCommunication.cpp - [%s] : %d"), TEXT("Socket Listen Fail"), errno);
 	}
 
-	core::Log_Debug(TEXT("CCommunication.cpp - [%s]"), TEXT("Working End"));
+	core::Log_Info(TEXT("CCommunication.cpp - [%s]"), TEXT("CCommunication Setting End"));
 }
 
 void CCommunication::End()

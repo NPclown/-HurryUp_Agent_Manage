@@ -12,12 +12,12 @@ class CService
 		static CService* GetInstance(void);
 		
 		void Init(std::tstring _serviceName);
-		int AgentInit(std::tstring data);
-		int AgentStart();
-		int AgentStop();
-		int AgentUpdate(std::tstring data);
-		int AgentDelete();
-		int AgentStatus();
+		std::tstring AgentEnvironment(std::tstring data);
+		std::tstring AgentExecute();
+		std::tstring AgentTerminate();
+		std::tstring AgentUpdate(std::tstring data);
+		std::tstring AgentDelete();
+		std::tstring AgentStatus();
 };
 
 inline CService* ServiceManager()
