@@ -4,9 +4,9 @@
 #define ENV_PATH TEXT("/var/log/hurryup/agent/env.json")
 #define ERROR_CHECK TEXT("echo $?")
 #define KILL TEXT("kill -9 ")
-#define WGET TEXT("wget -P /usr/local/bin -O /usr/local/bin/HurryUp_Agent")
-#define DELETE TEXT("rm -rf /usr/local/bin/HurryUp_Agent")
-#define CHMOD TEXT("chmod 755 /usr/local/bin/HurryUp_Agent")
+#define WGET TEXT("wget -P /usr/local/bin -O /usr/local/bin/HurryUp_Agent --timeout=10 --tries=1")
+#define DELETE TEXT("rm -rf /usr/local/bin/HurryUp_Agent > /dev/null 2>&1; echo $?")
+#define CHMOD TEXT("chmod 755 /usr/local/bin/HurryUp_Agent > /dev/null 2>&1; echo $?")
 #define AGENT_PATH TEXT("/usr/local/bin/HurryUp_Agent")
 
 CService::CService()
@@ -84,7 +84,11 @@ std::tstring CService::AgentExecute()
 	}
 
 	core::Log_Info(TEXT("CService.cpp - [%s]"), TEXT("Agent Execute End."));
-	return "Success";
+
+	if (AgentStatus() == "Live")
+		return "Success";
+	else
+		return "Dead";
 }
 
 std::tstring CService::AgentTerminate()
@@ -108,18 +112,22 @@ std::tstring CService::AgentTerminate()
 	for (auto i : Split(result, "\n"))
 		tmp += i + " ";
 
-	std::tstring killCommand = KILL + tmp;
+	std::tstring killCommand = KILL + tmp + "> /dev/null 2>&1; echo $?";
 	core::Log_Debug(TEXT("CService.cpp - [%s] : %s"), TEXT("Kill Command"), killCommand.c_str());
 
 	result = exec(killCommand.c_str());
 
-	if (Split(exec(ERROR_CHECK), "\n")[0] != std::tstring("0")) {
+	if (Split(result, "\n")[0] != std::tstring("0")) {
 		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error."), TEXT(result.c_str()));
 		return "Exec Command Error [" + result + "] : " + killCommand;
 	}
 
 	core::Log_Info(TEXT("CService.cpp - [%s]"), TEXT("Agent Terminate End."));
-	return "Success";
+
+	if (AgentStatus() == "Dead")
+		return "Success";
+	else
+		return "Agent Terminate Fail";
 }
 
 std::tstring CService::AgentUpdate(std::tstring data)
@@ -141,16 +149,29 @@ std::tstring CService::AgentUpdate(std::tstring data)
 		return "Agent Delete Error.";
 	}
 	
+	//TODO :: env.json 파일에서 관리서버의 백엔드 주소를 추출하여 사용!
+	if (core::PathFileExistsA(ENV_PATH) == 0)
+		return "Env.json Not Exisit.";
+
+	ST_ENV_INFO envInfo;
+	std::tstring errMessage;
+	core::ReadJsonFromFile(&envInfo, ENV_PATH, &errMessage);
+
+	if (errMessage != "") {
+		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("WriteJsonToFile Error"), TEXT(errMessage.c_str()));
+		return "Convert Json To File Error : " + errMessage;
+	}
+
 	//TODO :: WGET 보안 위협 제거 필요
-	std::tstring updateCommand = WGET + std::tstring(" ") + data;
+	std::tstring updateCommand = WGET + std::tstring(" ") + envInfo.serverIp + ":8080" + data + " > /dev/null 2>&1; echo $?";
 	core::Log_Debug(TEXT("CService.cpp - [%s] : %s"), TEXT("Update Command"), updateCommand.c_str());
 
 	std::tstring result = exec(updateCommand.c_str());
 	//TODO :: wget Error 잡기
 
-	if (Split(exec(ERROR_CHECK), "\n")[0] != std::tstring("0")) {
+	if (Split(result, "\n")[0] != std::tstring("0")) {
 		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error."), TEXT(result.c_str()));
-		return "Exec Command Error [" + result + "] : " + updateCommand;
+		return "Exec Command Error [" + Split(result, "\n")[0] + "] : " + updateCommand;
 	}
 
 	core::Log_Debug(TEXT("CService.cpp - [%s] : %s"), TEXT("Chmod Command"), CHMOD);
@@ -158,9 +179,9 @@ std::tstring CService::AgentUpdate(std::tstring data)
 	result = exec(CHMOD);
 	//TODO :: chmod Error 잡기
 
-	if (Split(exec(ERROR_CHECK), "\n")[0] != std::tstring("0")) {
+	if (Split(result, "\n")[0] != std::tstring("0")) {
 		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error."), TEXT(result.c_str()));
-		return "Exec Command Error [" + result + "] : " + CHMOD;
+		return "Exec Command Error [" + Split(result, "\n")[0] + "] : " + CHMOD;
 	}
 
 	core::Log_Info(TEXT("CService.cpp - [%s]"), TEXT("Agent File Update End"));
@@ -181,10 +202,10 @@ std::tstring CService::AgentDelete()
 
 	std::tstring result = exec(deleteCommand.c_str());
 
-	std::tstring error = Split(exec(ERROR_CHECK), "\n")[0];
+	std::tstring error = Split(result, "\n")[0];
 	if (error != std::tstring("0") && error != std::tstring("127")) {
 		core::Log_Error(TEXT("CService.cpp - [%s] : %s"), TEXT("Exec Command Error."), TEXT(result.c_str()));
-		return "Exec Command Error [" + result + "] : " + CHMOD;
+		return "Exec Command Error [" + Split(result, "\n")[0] + "] : " + CHMOD;
 	}
 	
 	core::Log_Info(TEXT("CService.cpp - [%s]"), TEXT("Agent File Delete End"));
@@ -199,8 +220,6 @@ std::tstring CService::AgentStatus()
 	core::Log_Debug(TEXT("CService.cpp - [%s] : %s"), TEXT("Pid Command"), pidCommand.c_str());
 
 	std::tstring result = exec(pidCommand.c_str());
-
-	std::cout << result << std::endl;
 
 	if (Split(result, "\n")[0] == std::tstring("0"))
 		return "Dead";
