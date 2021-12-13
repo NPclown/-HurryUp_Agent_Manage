@@ -31,38 +31,18 @@ struct ST_PACKET_INFO : public core::IFormatterObject
     }
 };
 
-struct ST_MODULE_INFO : public core::IFormatterObject
-{
-    std::tstring moduleIp;
-    std::tstring serialNumber;
-
-    ST_MODULE_INFO(void)
-    {}
-    ST_MODULE_INFO(std::tstring _moduleIp, std::tstring _serialNumber)
-        : moduleIp(_moduleIp), serialNumber(_serialNumber)
-    {}
-
-    void OnSync(core::IFormatter& formatter)
-    {
-        formatter
-            + core::sPair(TEXT("module_ip"), moduleIp)
-            + core::sPair(TEXT("serial_number"), serialNumber)
-            ;
-    }
-};
-
 struct ST_ENV_INFO : public core::IFormatterObject
 {
     std::tstring serverIp;
     std::tstring serverPort;
+    std::tstring serverFilePort;
     std::tstring serialNumber;
     std::tstring environment;
-    std::vector<ST_MODULE_INFO> modules;
 
     ST_ENV_INFO(void)
     {}
-    ST_ENV_INFO(std::tstring _serverIp, std::tstring _serverPort, std::tstring _serialNumber, std::tstring _environment, std::vector<ST_MODULE_INFO> _modules)
-        : serverIp(_serverIp), serverPort(_serverPort), serialNumber(_serialNumber), environment(_environment), modules(_modules)
+    ST_ENV_INFO(std::tstring _serverIp, std::tstring _serverPort, std::tstring _serverFilePort, std::tstring _serialNumber, std::tstring _environment)
+        : serverIp(_serverIp), serverPort(_serverPort), serverFilePort(_serverFilePort), serialNumber(_serialNumber), environment(_environment)
     {}
 
     void OnSync(core::IFormatter& formatter)
@@ -70,9 +50,9 @@ struct ST_ENV_INFO : public core::IFormatterObject
         formatter
             + core::sPair(TEXT("server_ip"), serverIp)
             + core::sPair(TEXT("server_port"), serverPort)
+            + core::sPair(TEXT("server_file_port"), serverFilePort)
             + core::sPair(TEXT("serial_number"), serialNumber)
             + core::sPair(TEXT("environment"), environment)
-            + core::sPair(TEXT("modules"), modules)
             ;
     }
 };
